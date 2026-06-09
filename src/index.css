@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Outfit:wght@250;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-pixel: "Press Start 2P", cursive;
+  --font-cyber: "Share Tech Mono", monospace;
+  --font-outfit: "Outfit", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: #030712;
+    color: #f3f4f6;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #030712;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #0284c7;
+  }
+}
+
+.text-glow {
+  text-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+}
+
+.text-glow-amber {
+  text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+.text-glow-teal {
+  text-shadow: 0 0 15px rgba(45, 212, 191, 0.55);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+.box-glow-sky {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+}
+
+.box-glow-sea {
+  box-shadow: 0 0 25px rgba(2, 132, 199, 0.2);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(17, 24, 39, 0.8);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px -15px rgba(56, 189, 248, 0.2);
+}
