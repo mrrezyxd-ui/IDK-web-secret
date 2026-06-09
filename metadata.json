@@ -1,0 +1,6 @@
+{
+  "name": "InterEnl",
+  "description": "Premium Minecraft and Cloud VPS hosting provider with global, DDoS-protected server endpoints.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
