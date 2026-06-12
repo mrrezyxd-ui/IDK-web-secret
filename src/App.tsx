@@ -181,8 +181,13 @@ export default function App() {
   const [billingCycle, setBillingCycle] = useState<number>(1); // months
   const [showOrderDisclaimer, setShowOrderDisclaimer] = useState(false);
 
-  // Logo & Discord URL setup
-  const logoUrl = "https://i.imgur.com/VNWmtap.jpeg";
+  // Logo & Discord URL setup and branding/theming configuration values (Admin customizable)
+  const [brandName, setBrandName] = useState<string>("InterEnl");
+  const [logoUrl, setLogoUrl] = useState<string>("https://i.imgur.com/VNWmtap.jpeg");
+  const [activeFontFamily, setActiveFontFamily] = useState<"Plus Jakarta Sans" | "Space Grotesk" | "JetBrains Mono" | "Press Start 2P" | "Share Tech Mono" | "Outfit">("Plus Jakarta Sans");
+  const [bgImageUrl, setBgImageUrl] = useState<string>("https://images.steamusercontent.com/ugc/2310974141604980016/B4EF3A7A2D1772DE26B1A6F51CE33A04FD8BB917/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false");
+  const [bgOpacityTop, setBgOpacityTop] = useState<number>(0.55);
+  const [bgOpacityBottom, setBgOpacityBottom] = useState<number>(0.88);
   const discordUrl = "https://discord.gg/GBjMnCgs3P";
 
   // Simulate initial loading timer sequence for professional feel
@@ -286,6 +291,66 @@ export default function App() {
     }));
   };
 
+  // Physical Datacenter State Variables and Handlers
+  const [newLocCountry, setNewLocCountry] = useState("");
+  const [newLocFlagUrl, setNewLocFlagUrl] = useState("");
+  const [newLocCpuType, setNewLocCpuType] = useState<"Ryzen9" | "Xeon">("Ryzen9");
+  const [newLocHardware, setNewLocHardware] = useState("");
+  const [newLocCity, setNewLocCity] = useState("");
+  const [isAddingLoc, setIsAddingLoc] = useState(false);
+
+  const editLocationCountry = (locId: string, val: string) => {
+    setLocations(prev => prev.map(loc => loc.id === locId ? { ...loc, country: val } : loc));
+  };
+
+  const editLocationFlagUrl = (locId: string, val: string) => {
+    setLocations(prev => prev.map(loc => loc.id === locId ? { ...loc, flagUrl: val } : loc));
+  };
+
+  const editLocationCpuType = (locId: string, val: "Ryzen9" | "Xeon") => {
+    setLocations(prev => prev.map(loc => loc.id === locId ? { ...loc, cpuType: val } : loc));
+  };
+
+  const editLocationCity = (locId: string, val: string) => {
+    setLocations(prev => prev.map(loc => loc.id === locId ? { ...loc, city: val } : loc));
+  };
+
+  const handleAddLocation = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newLocCountry.trim() || !newLocFlagUrl.trim() || !newLocHardware.trim()) return;
+
+    const newLoc: LocationInfo = {
+      id: `loc-${Date.now()}`,
+      country: newLocCountry,
+      flag: "🌐",
+      flagUrl: newLocFlagUrl,
+      city: newLocCity ? newLocCity : "Junction Center",
+      hardware: newLocHardware,
+      cpuType: newLocCpuType,
+      status: "Online",
+      pingSimulatedMin: Math.floor(Math.random() * 25) + 5,
+      pingSimulatedMax: Math.floor(Math.random() * 25) + 30,
+      coordinates: {
+        x: Math.floor(Math.random() * 60) + 20,
+        y: Math.floor(Math.random() * 50) + 20
+      }
+    };
+
+    setLocations(prev => [...prev, newLoc]);
+    
+    // Reset form inputs
+    setNewLocCountry("");
+    setNewLocFlagUrl("");
+    setNewLocHardware("");
+    setNewLocCity("");
+    setNewLocCpuType("Ryzen9");
+    setIsAddingLoc(false);
+  };
+
+  const handleDeleteLocation = (id: string) => {
+    setLocations(prev => prev.filter(loc => loc.id !== id));
+  };
+
   const startEditPlan = (type: "cloud" | "storage" | "minecraft", plan: Plan) => {
     setEditingPlanType(type);
     setEditingPlanId(plan.id);
@@ -363,15 +428,15 @@ export default function App() {
   // Define full UI/UX Skins for each theme
   const skin = THEME_SKINS[theme];
 
-  // Determine styles for theme selections
+  // Determine styles for theme selections (Customizable background engine)
   const themePageBgStyle = useMemo(() => {
     return {
-      backgroundImage: "linear-gradient(to bottom, rgba(3, 7, 18, 0.55), rgba(3, 7, 18, 0.88)), url('https://images.steamusercontent.com/ugc/2310974141604980016/B4EF3A7A2D1772DE26B1A6F51CE33A04FD8BB917/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false')",
+      backgroundImage: `linear-gradient(to bottom, rgba(3, 7, 18, ${bgOpacityTop}), rgba(3, 7, 18, ${bgOpacityBottom})), url('${bgImageUrl}')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
     };
-  }, []);
+  }, [bgImageUrl, bgOpacityTop, bgOpacityBottom]);
 
   const activeAccentColor = skin.accentColor;
   const activeBtnColor = skin.btnClass;
@@ -382,6 +447,17 @@ export default function App() {
     <div 
       className={`min-h-screen text-[#f8fafc] ${skin.fontClass} antialiased relative overflow-hidden transition-all duration-[5000ms] selection:bg-sky-450 selection:text-slate-900`}
     >
+      <style>{`
+        body, .font-sans, .font-display, .font-mono, .font-pixel, .font-cyber, .font-outfit, button, span, h1, h2, h3, h4, font, p, input, select, option, textarea, a {
+          font-family: ${
+            activeFontFamily === "Plus Jakarta Sans" ? "var(--font-sans)" :
+            activeFontFamily === "Space Grotesk" ? "var(--font-display)" :
+            activeFontFamily === "JetBrains Mono" ? "var(--font-mono)" :
+            activeFontFamily === "Press Start 2P" ? "var(--font-pixel)" :
+            activeFontFamily === "Share Tech Mono" ? "var(--font-cyber)" : "var(--font-outfit)"
+          } !important;
+        }
+      `}</style>
       
       {/* 5-Second Cinematic Cross-fading Theme Background Engine */}
       <div className="fixed inset-0 -z-30 w-full h-full pointer-events-none overflow-hidden bg-slate-950">
@@ -426,7 +502,7 @@ export default function App() {
                 <div className="absolute -inset-2 rounded-full border border-sky-400/20 animate-ping duration-[2s]" />
                 <img
                   src={logoUrl}
-                  alt="InterEnl Logomark"
+                  alt={`${brandName} Logomark`}
                   width="100"
                   height="100"
                   className="relative rounded-full border border-white/20 aspect-square object-cover shadow-2xl shadow-sky-400/30"
@@ -436,7 +512,7 @@ export default function App() {
 
               <div className="flex flex-col items-center text-center">
                 <h1 className="font-display font-extrabold text-3xl sm:text-5xl tracking-widest text-[#f8fafc] uppercase text-sky-400">
-                  InterEnl
+                  {brandName}
                 </h1>
                 <span className="text-[10px] font-mono tracking-[0.3em] text-sky-400 uppercase mt-2 font-bold select-none">
                   Initializing Cloud Datacenters...
@@ -479,7 +555,7 @@ export default function App() {
               <img 
                 id="header-logo-img" 
                 src={logoUrl} 
-                alt="InterEnl Logo" 
+                alt={`${brandName} Logo`} 
                 width="38" 
                 height="38" 
                 className="relative rounded-full border border-white/20 aspect-square object-cover"
@@ -489,9 +565,9 @@ export default function App() {
             <div className="flex flex-col">
               <span 
                 className={`font-bold text-lg md:text-xl tracking-wider ${activeGlowTheme}`}
-                style={{ color: "#0eb2ff", fontFamily: "monospace" }}
+                style={{ color: "#0eb2ff" }}
               >
-                InterEnl
+                {brandName}
               </span>
               <span className={`text-[9px] font-mono tracking-widest uppercase ${activeAccentColor}`}>Simply Powerful</span>
             </div>
@@ -685,7 +761,7 @@ export default function App() {
                   </div>
                   <h3 className="font-display font-extrabold text-lg text-slate-100">Authenticate session</h3>
                   <p className="text-[11px] text-slate-500 max-w-xs">
-                    Please provide system administrator credentials to access InterEnl database files and plan models.
+                    Please provide system administrator credentials to access {brandName} database files and plan models.
                   </p>
                 </div>
 
@@ -736,6 +812,102 @@ export default function App() {
               {/* LEFT ADMIN MENU PANELS */}
               <div className="lg:col-span-8 flex flex-col gap-8">
                 
+                {/* 0. BRAND & AESTHETICS CONFIGURATOR */}
+                <div className="bg-[#030712]/90 border border-slate-900 rounded-2xl p-6 flex flex-col gap-5">
+                  <div className="flex items-center gap-2 border-b border-slate-900 pb-3">
+                    <Palette size={16} className="text-pink-500" />
+                    <h3 className="font-display font-extrabold text-[#f1f5f9] text-sm uppercase tracking-wider">Brand Name, Logo, Fonts & Wallpaper Configurator</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Brand Name */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Brand Name Changer:</label>
+                      <input 
+                        type="text"
+                        value={brandName}
+                        onChange={(e) => setBrandName(e.target.value)}
+                        className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-white focus:border-pink-500 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Brand Logo URL */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Logo URL Changer:</label>
+                      <input 
+                        type="text"
+                        value={logoUrl}
+                        onChange={(e) => setLogoUrl(e.target.value)}
+                        className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-white focus:border-pink-500 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Font Family Selection */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Global Font Changer:</label>
+                      <select 
+                        value={activeFontFamily}
+                        onChange={(e) => setActiveFontFamily(e.target.value as any)}
+                        className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-white focus:border-pink-500 focus:outline-none"
+                      >
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans (Sans-Serif)</option>
+                        <option value="Space Grotesk">Space Grotesk (Tech-Display)</option>
+                        <option value="JetBrains Mono">JetBrains Mono (Developer Mono)</option>
+                        <option value="Press Start 2P">Press Start 2P (Retro Pixel)</option>
+                        <option value="Share Tech Mono">Share Tech Mono (Cyberpunk)</option>
+                        <option value="Outfit">Outfit (Minimalist Elegant)</option>
+                      </select>
+                    </div>
+
+                    {/* Background Wallpaper Image URL */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Visual Background Wallpaper URL Changer:</label>
+                      <input 
+                        type="text"
+                        value={bgImageUrl}
+                        onChange={(e) => setBgImageUrl(e.target.value)}
+                        className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-white focus:border-pink-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-900/60 pt-4">
+                    {/* Background Top Opacity */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Background Dim (Top Overlay Opacity):</label>
+                        <span className="text-xs text-pink-400 font-mono">{(bgOpacityTop * 100).toFixed(0)}%</span>
+                      </div>
+                      <input 
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={bgOpacityTop}
+                        onChange={(e) => setBgOpacityTop(parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-slate-955 rounded-lg cursor-pointer accent-pink-500"
+                      />
+                    </div>
+
+                    {/* Background Bottom Opacity */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-mono text-slate-500 uppercase font-bold tracking-wider">Background Dim (Bottom Overlay Opacity):</label>
+                        <span className="text-xs text-pink-400 font-mono">{(bgOpacityBottom * 100).toFixed(0)}%</span>
+                      </div>
+                      <input 
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={bgOpacityBottom}
+                        onChange={(e) => setBgOpacityBottom(parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-slate-955 rounded-lg cursor-pointer accent-pink-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* 1. VPS PLANS MANAGER */}
                 <div className="bg-[#030712]/90 border border-slate-900 rounded-2xl p-6 flex flex-col gap-6">
                   <div className="flex items-center justify-between border-b border-slate-900 pb-4">
@@ -970,38 +1142,196 @@ export default function App() {
 
                 {/* 2. GEOGRAPHIES NODE MANAGER */}
                 <div className="bg-[#030712]/90 border border-slate-900 rounded-2xl p-6 flex flex-col gap-4">
-                  <div className="flex items-center gap-2 border-b border-slate-900 pb-3">
-                    <Globe size={16} className="text-emerald-400" />
-                    <h3 className="font-display font-extrabold text-[#f1f5f9] text-sm uppercase tracking-wider">Physical Datacenters Overwatch</h3>
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Globe size={16} className="text-emerald-400" />
+                      <h3 className="font-display font-extrabold text-[#f1f5f9] text-sm uppercase tracking-wider">Physical Datacenters Overwatch</h3>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {locations.map(loc => (
-                      <div key={loc.id} className="p-4 bg-slate-950 rounded-xl border border-slate-900 flex flex-col gap-3">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <img src={loc.flagUrl} alt="" className="w-5 h-5 rounded-full object-cover" />
-                            <span className="font-bold text-xs text-slate-100">{loc.country} ({loc.city})</span>
+                  {/* FORM TO ADD DATACENTER */}
+                  <div className="bg-slate-950/40 border border-slate-905 p-4 rounded-xl flex flex-col gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setIsAddingLoc(!isAddingLoc)}
+                      className="w-full py-2 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-800/40 text-emerald-400 font-bold text-xs rounded transition flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>{isAddingLoc ? "▲ Close Hot-Provision Pipeline" : "✚ Hot-Provision New Physical Node Base"}</span>
+                    </button>
+
+                    {isAddingLoc && (
+                      <form onSubmit={handleAddLocation} className="mt-2 flex flex-col gap-3 border-t border-slate-900 pt-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase font-black">Country Name:</span>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. Bangladesh" 
+                              value={newLocCountry}
+                              onChange={(e) => setNewLocCountry(e.target.value)}
+                              className="bg-slate-950 border border-slate-850 rounded p-2 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none"
+                              required
+                            />
                           </div>
+
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase font-black">Country Logo / Flag Address:</span>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. https://example.com/flag.png (or emoji / vector)" 
+                              value={newLocFlagUrl}
+                              onChange={(e) => setNewLocFlagUrl(e.target.value)}
+                              className="bg-slate-950 border border-slate-850 rounded p-2 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none"
+                              required
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase font-black">City Area Name:</span>
+                            <input 
+                              type="text" 
+                              placeholder="e.g. Dhaka (or Singapore / Frankfurt)" 
+                              value={newLocCity}
+                              onChange={(e) => setNewLocCity(e.target.value)}
+                              className="bg-slate-950 border border-slate-850 rounded p-2 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase font-black">Processor Chooser (Ryzen or Intel):</span>
+                            <select 
+                              value={newLocCpuType}
+                              onChange={(e) => setNewLocCpuType(e.target.value as any)}
+                              className="bg-slate-950 border border-slate-850 rounded p-2 text-xs text-slate-100 focus:outline-none"
+                            >
+                              <option value="Ryzen9">AMD RYZEN (Ryzen 9 CPUs)</option>
+                              <option value="Xeon">INTEL XEON (Intel Xeon Scalable)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase font-black">CPU Model spec (Hardware):</span>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. AMD Ryzen 9 9950X Extreme (16 Cores, 5.7 GHz boost)" 
+                            value={newLocHardware}
+                            onChange={(e) => setNewLocHardware(e.target.value)}
+                            className="bg-slate-950 border border-slate-850 rounded p-2 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none"
+                            required
+                          />
+                        </div>
+
+                        <div className="flex gap-2 self-end mt-1">
+                          <button 
+                            type="button"
+                            onClick={() => setIsAddingLoc(false)}
+                            className="px-3 py-1.5 bg-slate-900 text-slate-400 text-xs rounded hover:bg-slate-850 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            type="submit"
+                            className="px-3 py-1.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded hover:bg-emerald-400 cursor-pointer"
+                          >
+                            Hot-Add Datacenter
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                    {locations.map(loc => (
+                      <div key={loc.id} className="p-4 bg-slate-950 rounded-xl border border-slate-900 flex flex-col gap-3.5 relative group">
+                        
+                        {/* Delete country button */}
+                        <button 
+                          onClick={() => handleDeleteLocation(loc.id)}
+                          className="absolute top-4 right-4 p-1.5 text-slate-600 hover:text-rose-500 hover:bg-rose-950/20 rounded transition opacity-50 group-hover:opacity-100 cursor-pointer"
+                          title="Delete physical datacenter node"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+
+                        <div className="flex justify-between items-center pr-6">
+                          <div className="flex items-center gap-2">
+                            <img src={loc.flagUrl} alt="" className="w-5 h-5 rounded-full object-cover border border-slate-800" />
+                            <span className="font-bold text-xs text-slate-200">ID: <span className="font-mono text-emerald-400 text-[10px]">{loc.id}</span></span>
+                          </div>
+                        </div>
+
+                        {/* Editable Form Fields for Instant Tuning */}
+                        <div className="grid grid-cols-1 gap-2.5 border-t border-slate-900/65 pt-3.5 text-xs">
+                          {/* Country Name */}
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase font-bold">Country:</span>
+                            <input 
+                              type="text" 
+                              value={loc.country} 
+                              onChange={(e) => editLocationCountry(loc.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-xs text-slate-300"
+                            />
+                          </div>
+
+                          {/* Country Logo Flag Address */}
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase font-bold">Country Logo:</span>
+                            <input 
+                              type="text" 
+                              value={loc.flagUrl} 
+                              onChange={(e) => editLocationFlagUrl(loc.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-xs text-slate-300 font-mono"
+                            />
+                          </div>
+
+                          {/* City Name */}
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase font-bold">City Area:</span>
+                            <input 
+                              type="text" 
+                              value={loc.city || ""} 
+                              onChange={(e) => editLocationCity(loc.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-xs text-slate-300"
+                            />
+                          </div>
+
+                          {/* Processor Chooser */}
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase font-bold">Processor (Intel / Ryzen):</span>
+                            <select 
+                              value={loc.cpuType} 
+                              onChange={(e) => editLocationCpuType(loc.id, e.target.value as any)}
+                              className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-xs text-slate-300"
+                            >
+                              <option value="Ryzen9">RYZEN (AMD Ryzen 9)</option>
+                              <option value="Xeon">INTEL (Intel Xeon)</option>
+                            </select>
+                          </div>
+
+                          {/* CPU Model Name */}
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase font-bold">CPU Model spec:</span>
+                            <input 
+                              type="text" 
+                              value={loc.hardware} 
+                              onChange={(e) => editLocationHardware(loc.id, e.target.value)}
+                              className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-xs text-slate-300"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Ping / Map Diagnostics */}
+                        <div className="flex items-center justify-between border-t border-slate-900 pt-2.5 mt-0.5">
+                          <span className="text-[9px] font-mono text-slate-600">Simulated Latency: {loc.pingSimulatedMin}-{loc.pingSimulatedMax}ms</span>
                           
                           <button
+                            type="button"
                             onClick={() => toggleLocationStatus(loc.id)}
-                            className={`px-2 py-0.5 rounded text-[9px] font-bold border transition ${loc.status === 'Online' ? 'bg-emerald-950 text-emerald-400 border-emerald-800' : loc.status === 'Maintenance' ? 'bg-amber-950 text-amber-500 border-amber-800' : 'bg-rose-950 text-rose-500 border-rose-800'}`}
+                            className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold border transition ${loc.status === 'Online' ? 'bg-emerald-950/50 text-emerald-400 border-emerald-900/40' : loc.status === 'Maintenance' ? 'bg-amber-950/50 text-amber-500 border-amber-900/40' : 'bg-rose-950/50 text-rose-500 border-rose-900/40'}`}
                           >
                             {loc.status}
                           </button>
-                        </div>
-
-                        <div className="flex flex-col gap-1 text-[10px] font-mono text-slate-500">
-                          <div className="flex justify-between">
-                            <span>Processors Brand:</span>
-                            <input
-                              type="text"
-                              value={loc.hardware}
-                              onChange={(e) => editLocationHardware(loc.id, e.target.value)}
-                              className="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-slate-300 text-[10px]"
-                            />
-                          </div>
                         </div>
                       </div>
                     ))}
@@ -1799,12 +2129,12 @@ export default function App() {
               <img 
                 id="footer-logo-img"
                 src={logoUrl} 
-                alt="InterEnl Corp Logo" 
+                alt={`${brandName} Corp Logo`} 
                 className="w-10 h-10 rounded-full border border-slate-800 object-cover"
                 referrerPolicy="no-referrer"
               />
               <div className="flex flex-col">
-                <span className="font-display font-bold text-base text-slate-200 tracking-wider">InterEnl LLC</span>
+                <span className="font-display font-bold text-base text-slate-200 tracking-wider">{brandName} LLC</span>
                 <span className="text-[8px] font-mono text-sky-400">Simply Powerful Gaming</span>
               </div>
             </div>
@@ -1882,7 +2212,7 @@ export default function App() {
         {/* Bottom copyright segment */}
         <div className="max-w-7xl mx-auto border-t border-slate-900 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-600 text-[10px] uppercase font-mono select-none">
           <div>
-            © 2026 InterEnl LLC. All software rights reserved.
+            © 2026 {brandName} LLC. All software rights reserved.
           </div>
           <div className="flex gap-4 font-mono text-[10px]">
             <span>Powered by AMD Ryzen 9 CPUs Only</span>
@@ -2019,7 +2349,7 @@ export default function App() {
                 <div className="p-3 bg-amber-500/10 border border-amber-500/15 rounded-xl flex gap-2 w-full text-[10.5px] text-amber-250 leading-normal">
                   <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
                   <p>
-                    <strong>Policy Confirmation:</strong> By ordering, you acknowledge that all sales are final and mining is strictly prohibited on InterEnl servers. To complete the setup, a support ticket will open instantly on Discord.
+                    <strong>Policy Confirmation:</strong> By ordering, you acknowledge that all sales are final and mining is strictly prohibited on {brandName} servers. To complete the setup, a support ticket will open instantly on Discord.
                   </p>
                 </div>
 
